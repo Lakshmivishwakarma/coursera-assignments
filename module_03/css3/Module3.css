@@ -1,0 +1,99 @@
+#header-nav {
+    background-color: gray;
+    border: 2px solid black;
+}
+
+.heading {
+    color: black;
+}
+
+
+.content {
+    background-color: gray;
+}
+
+
+#nav-list {
+    margin-top: 10px;
+}
+
+#nav-list a {
+    color: black;
+    text-align: center;
+    background: white;
+    font-size: 20px;
+   
+}
+
+#nav-list a:hover {
+    background:white;
+}
+
+#nav-list a span {
+    font-size: 2px;
+   
+}
+.list{
+    border:1px solid black;
+   
+
+}
+
+.navbar-nav {
+    margin-top: 0px ;
+    margin-bottom: 0px;
+    
+}
+
+.navbar-toggle .icon-bar+.icon-bar {
+    margin-top: 4px;
+}
+
+@media (min-width: 750px) {
+    .navbar-toggle {
+        display: none;
+    }
+    .content { margin: 20px 10px 20px 20px;}
+
+
+}
+
+/********** Large devices only **********/
+
+@media (min-width: 1200px) {
+    .content {
+        margin-right: 15px;
+    }
+    
+}
+
+
+
+
+
+/********** Medium devices only **********/
+@media (min-width: 992px) and (max-width: 1199px) {
+    .content { margin : 20px 10px 20px 20px;
+    }
+
+
+}
+
+
+
+  
+/********** Small devices only **********/
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .content { margin : 20px 10px 20px 20px;
+    }
+}
+
+
+
+
+/********** Extra small devices only **********/
+@media (max-width: 767px) {
+     .content { margin : 50px 50px 50px 50px;
+    }
+}
