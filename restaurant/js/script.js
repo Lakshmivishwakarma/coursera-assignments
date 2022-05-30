@@ -25,8 +25,6 @@ const menuItemString = `<div class="menu-item-tile col-md-6">
 <hr class="visible-xs">
 </div>`;
 
-
-
 // for nav bar 
 $(function () { // Same as document.addEventListener("DOMContentLoaded"...
 
@@ -52,130 +50,104 @@ $(function () { // Same as document.addEventListener("DOMContentLoaded"...
     $(this).focus();
 
   });
+  loadHomeContents();
 });
 
-// for index.html
-function showData() {
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function () {
-    if (req.readyState === 4 && req.status === 200) {
-      document.getElementById("main-content").innerHTML = req.responseText;
-      
-    }
-  }
-  req.open("GET", "snippets/home_snippets.html", true);
-  req.send();
-}
-document.addEventListener("DOMContentLoaded", showData);
-// index.html ends here
-
-
-
-function loadMenuCategoriesTitle() {
-
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function () {
-      if (req.readyState === 4 && req.status === 200) {
-          // document.getElementById("menu-title").innerHTML = req.responseText;
-          document.getElementById("main-content").innerHTML = req.responseText;
-
-      }
-  }
-  req.open("GET", "snippets/categories-title-snippet.html", true);
-  req.send();
-
-}
 function insertProperty(us, property, value) {
   let str;
   str = us.replace(new RegExp(property, 'g'), value);
   return str
 }
 
-
-function showMenuCategory() {
+function ajaxGet(url, repsoneHandler) {
   var req = new XMLHttpRequest();
   req.onreadystatechange = function () {
-      if (req.readyState === 4 && req.status === 200) {
-          let menuListHTML = ""
+    if (req.readyState === 4 && req.status === 200) {
+      repsoneHandler(req.response);
 
-          let menuCategories = JSON.parse(req.response);
-          for (let index = 0; index < menuCategories.length; index++) {
-              const menu = menuCategories[index];
-              
-              let menuHTML = insertProperty(categoryString, "{{name}}", menu.name);
-              menuHTML = insertProperty(menuHTML, "{{short_name}}", menu.short_name);
-              
-              
-              menuListHTML = menuListHTML + menuHTML;
-              // console.log(menuListHTML)
-          }
-          document.getElementById("main-content").innerHTML += menuListHTML;
-
-      }
+    }
   }
-  req.open("GET", "https://davids-restaurant.herokuapp.com/categories.json", true);
+  req.open("GET", url, true);
   req.send();
 }
 
-function loadMenuCategories(){
+// for index.html
+function loadHomeContents() {
+  ajaxGet("snippets/home_snippets.html", function (response) {
+    document.getElementById("main-content").innerHTML = response;
+  });
+}
+
+function loadMenuCategoriesTitle() {
+  ajaxGet("snippets/categories-title-snippet.html", function (response) {
+    document.getElementById("main-content").innerHTML = response;
+  });
+}
+
+function showMenuCategory() {
+
+  ajaxGet("https://davids-restaurant.herokuapp.com/categories.json", function (response) {
+
+    let menuListHTML = ""
+    let menuCategories = JSON.parse(response);
+    for (let index = 0; index < menuCategories.length; index++) {
+      const menu = menuCategories[index];
+
+      let menuHTML = insertProperty(categoryString, "{{name}}", menu.name);
+      menuHTML = insertProperty(menuHTML, "{{short_name}}", menu.short_name);
+      menuListHTML = menuListHTML + menuHTML;
+      // console.log(menuListHTML)
+    }
+    document.getElementById("main-content").innerHTML += menuListHTML;
+  });
+
+}
+
+function loadMenuCategories() {
   loadMenuCategoriesTitle();
   showMenuCategory();
 
 }
 
 // for single category
-function loadMenuTitle(menuItemsHtml, category){
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function () {
-      if (req.readyState === 4 && req.status === 200) {
-          let titleHtml =  req.responseText;
-          titleHtml = insertProperty(titleHtml, "{{name}}", category.name);
-          titleHtml = insertProperty(titleHtml, "{{special_instructions}}", category.special_instructions);
+function loadMenuTitle(menuItemsHtml, category) {
+  ajaxGet("snippets/menu-items-title.html", function (response) {
+    let titleHtml = response;
+    titleHtml = insertProperty(titleHtml, "{{name}}", category.name);
+    titleHtml = insertProperty(titleHtml, "{{special_instructions}}", category.special_instructions);
 
-        document.getElementById("main-content").innerHTML = titleHtml + menuItemsHtml;
+    document.getElementById("main-content").innerHTML = titleHtml + menuItemsHtml;
+  });
+};
 
-      }
-  }
-  req.open("GET", "snippets/menu-items-title.html", true);
-  req.send();
-}
-function showMenus(catShortName){
+function showMenus(catShortName) {
   let menuItemUrl = "https://davids-restaurant.herokuapp.com/menu_items.json";
 
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function () {
-      if (req.readyState === 4 && req.status === 200) {
-        let response = JSON.parse(req.response);
-        let menu_items = response.menu_items;
-        let cat = response.category;
-        let menuItemsHtml ='';
-        for (let index = 0; index < menu_items.length; index++) {
-          const item = menu_items[index];
-    
-          let itemHtml = insertProperty(menuItemString, "{{short_name}}", item.short_name);
-          itemHtml = insertProperty(itemHtml, "{{catShortName}}", catShortName);
-          itemHtml = insertProperty(itemHtml, "{{small_portion_name}}", item.small_portion_name);
-          itemHtml = insertProperty(itemHtml, "{{price_small}}", item.price_small);
-          itemHtml = insertProperty(itemHtml, "{{price_large}}", item.price_large);
-          itemHtml = insertProperty(itemHtml, "{{large_portion_name}}", item.large_portion_name);
-          itemHtml = insertProperty(itemHtml, "{{name}}", item.name);
-          itemHtml = insertProperty(itemHtml, "{{description}}", item.description);
-          menuItemsHtml += itemHtml;
-        }
-        // get the snippet html
-        loadMenuTitle(menuItemsHtml, cat);
-        
-        // render it to main content 
-        // document.getElementById("main-content").innerHTML = menuItemsHtml;
+  ajaxGet(`${menuItemUrl}?category=${catShortName}`, function (response) {
+    let res = JSON.parse(response);
+    let menu_items = res.menu_items;
+    let cat = res.category;
+    let menuItemsHtml = '';
+    for (let index = 0; index < menu_items.length; index++) {
+      const item = menu_items[index];
 
-      }
-  }
-  req.open("GET", `${menuItemUrl}?category=${catShortName}`, true);
-  req.send();
+      let itemHtml = insertProperty(menuItemString, "{{short_name}}", item.short_name);
+      itemHtml = insertProperty(itemHtml, "{{catShortName}}", catShortName);
+      itemHtml = insertProperty(itemHtml, "{{small_portion_name}}", item.small_portion_name);
+      itemHtml = insertProperty(itemHtml, "{{price_small}}", item.price_small);
+      itemHtml = insertProperty(itemHtml, "{{price_large}}", item.price_large);
+      itemHtml = insertProperty(itemHtml, "{{large_portion_name}}", item.large_portion_name);
+      itemHtml = insertProperty(itemHtml, "{{name}}", item.name);
+      itemHtml = insertProperty(itemHtml, "{{description}}", item.description);
+      menuItemsHtml += itemHtml;
+    }
+    // get the snippet html
+    loadMenuTitle(menuItemsHtml, cat);
+
+  });
+
 }
-function loadMenuItems(catShortName){
+function loadMenuItems(catShortName) {
   // load data menu-item.json
   showMenus(catShortName);
-
-
 }
