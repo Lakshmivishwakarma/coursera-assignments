@@ -70,6 +70,20 @@ function ajaxGet(url, repsoneHandler) {
   req.open("GET", url, true);
   req.send();
 }
+// Remove the class active from home
+
+let switchActive = function () {
+
+  let classes = document.querySelector("#navHomeButton").className;
+  classes = classes.replace(new RegExp("active", "g"), "");
+  document.querySelector("#navHomeButton").className = classes;
+
+  classes = document.querySelector("#navMenuButton").className;
+  if (classes.indexOf("active") == -1) {
+    classes += "active";
+    document.querySelector("#navMenuButton").className = classes;
+  }
+};
 
 // for index.html
 function loadHomeContents() {
@@ -106,7 +120,7 @@ function showMenuCategory() {
 function loadMenuCategories() {
   loadMenuCategoriesTitle();
   showMenuCategory();
-
+  switchActive();
 }
 
 // for single category
